@@ -1,0 +1,99 @@
+query SessionDetailsQuery($id: UniqueID!){
+    textCount(where: {scope_id: $id})
+    session(id:$id){
+        ...DetailedSessionGql
+    }
+}
+
+query GroupsByUsers($userIds: [UniqueID!]!) {
+    groups(where: {users__all: $userIds}, limit: 999) {
+        ...Group
+    }
+}
+
+subscription DetailedSessionSubscription($id:UniqueID!) {
+    session(id:$id) {
+        operation
+        entity {
+            ...DetailedSessionGql
+        }
+    }
+}
+
+mutation UpdateSessionMutation($input:UpdateSessionInput!){
+    updateSession(input: $input){
+        entity {
+            ...DetailedSessionGql
+        }
+    }
+}
+
+mutation CreateGroupMutation($input: CreateGroupInput!){
+    createGroup(input: $input){
+        entity{
+            ...Group
+        }
+    }
+}
+
+fragment DetailedSessionGql on Session {
+    id
+    name
+    description
+    status
+    startDate
+    network
+    usersGql : users{
+        id
+        firstName
+        lastName
+    }
+    locGql : loc {
+        ...LocGql
+    }
+    tasksGql : tasks{
+        status
+    }
+    textAttachmentsGql : textAttachments{
+        edges{
+            node{
+                ...SessionAttachmentGql
+            }
+        }
+    }
+    scopedEntitiesGql : scopedEntities{
+        texts{
+            edges{
+                node{
+                    ...SessionTextGql
+                }
+            }
+        }
+    }
+    referencesGql : references{
+        id
+        refType
+        entity{
+            ... on Note{
+                id
+                type
+                attributes
+            }
+            ... on Event{
+                id
+                name
+                attachments{
+                    ...SessionAttachmentGql
+                }
+            }
+        }
+    }
+    sessionTypeGql : sessionType {
+        id
+        iconUrl
+        name
+    }
+    auditGql : audit {
+        createdAt
+    }
+}

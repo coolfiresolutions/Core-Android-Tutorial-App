@@ -1,0 +1,14 @@
+query UsersQuery($limit: Int!){
+    users(limit: $limit) {
+        ...User
+    }
+}
+
+fragment User on User{
+    id
+    firstName
+    lastName
+    userName
+    email
+    lastPresentDate
+}

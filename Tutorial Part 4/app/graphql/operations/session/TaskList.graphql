@@ -1,0 +1,36 @@
+query TaskDetailsListQuery($sessionId: UniqueID!) {
+    session(id: $sessionId) {
+        ...TaskList
+    }
+}
+
+subscription TaskListSubscription($sessionId: UniqueID!) {
+    session(id: $sessionId) {
+        entity {
+            ...TaskList
+        }
+    }
+}
+
+mutation TaskListMutation($input: UpdateSessionInput!) {
+    updateSession(input: $input) {
+        entity {
+            ...TaskList
+        }
+    }
+}
+
+fragment TaskList on Session{
+    tasks {
+        name
+        assignee {
+            id
+            firstName
+            lastName
+            userName
+            email
+        }
+        status
+        priority
+    }
+}

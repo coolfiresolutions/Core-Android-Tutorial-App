@@ -1,0 +1,25 @@
+query SettingsPushNotificationQuery {
+    me {
+        ...UserPushNotificationProfile
+    }
+}
+
+mutation SettingsUpdateUserMutation($input:UpdateUserInput!){
+    updateUser(input: $input){
+        entity {
+            ...UserPushNotificationProfile
+        }
+    }
+}
+
+fragment UserPushNotificationProfile on User{
+    myProfile{
+        preferences{
+            pushNotificationSettings{
+                session
+                event
+                text
+            }
+        }
+    }
+}

@@ -1,0 +1,55 @@
+query DashboardQuery($network:UniqueID!, $timeLimit: DateTime!,  $myUserId: UniqueID!, $status:String!) {
+    serverInfo {
+        licensing {
+            dbSize
+        }
+    }
+    license {
+        token
+    }
+    totalSessionCount: sessionCount(where: {
+        network: $network
+        status__ne: $status
+    })
+    joinedSessionCount: sessionCount(
+        where: {
+            network: $network,
+            users: $myUserId,
+            status__ne: $status})
+    eventCount(where: {
+        audit_createdAt__gte: $timeLimit,
+        scopes_id: $network,
+        scopes_type: thing
+    })
+    mySessionTasks{
+        edges{
+            ...DashboardTask
+        }
+    }
+}
+
+subscription DashboardSessionSubscription($network:UniqueID!){
+    session(where: {network: $network}){
+        operation
+    }
+}
+
+subscription DashboardEventSubscription($network:UniqueID!){
+    event(where: {scopes_id: $network, scopes_type: thing}){
+        operation
+        entity{
+            id
+        }
+    }
+}
+
+fragment DashboardTask on TaskEdge{
+    session{
+        network
+        status
+    }
+    node{
+        name
+        status
+    }
+}

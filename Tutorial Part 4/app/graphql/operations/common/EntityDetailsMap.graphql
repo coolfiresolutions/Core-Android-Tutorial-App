@@ -1,0 +1,103 @@
+query EntityDetailsMapQuery($id: ID!){
+    node(id:$id){
+        ...MapEntity
+    }
+}
+
+subscription EntityUser($ids:[UniqueID!]!){
+    user(where: {id__in: $ids}){
+        entity{
+            ...EntityUser
+        }
+    }
+}
+
+subscription EntityDetailsMapSessionSubscription($id: UniqueID!){
+    session(id:$id){
+        operation
+        entity{
+            ...MapEntity
+        }
+    }
+}
+
+subscription EntityDetailsMapEventSubscription($id: UniqueID!){
+    event(id:$id){
+        operation
+        entity{
+            ...MapEntity
+        }
+    }
+}
+
+subscription EntityDetailsMapThingSubscription($id: UniqueID!){
+    thing(id:$id){
+        operation
+        entity{
+            ...MapEntity
+        }
+    }
+}
+
+fragment MapEntity on Node{
+    ... on Session{
+        sessionDescription: description
+        sessionName: name
+        sessionId: id
+        sessionUsers: users{
+            ...EntityUser
+        }
+        sessionLoc: loc{
+            ...EntityLoc
+        }
+        sessionAttachments: textAttachments{
+            edges{
+                node{
+                    id
+                    url
+                    contentType
+                }
+            }
+        }
+    }
+    ... on Event{
+        eventDescription: description
+        eventName: name
+        eventId: id
+        eventLoc: loc{
+            ...EntityLoc
+        }
+        eventAttachments:attachments{
+            id
+            contentType
+            url
+        }
+    }
+    ... on Thing{
+        thingDescription: description
+        thingName: name
+        thingId: id
+        thingLoc: loc{
+            ...EntityLoc
+        }
+        thingType {
+            id
+            iconUrl
+        }
+    }
+}
+
+fragment EntityUser on User{
+    id
+    firstName
+    lastName
+    loc{
+        ...EntityLoc
+    }
+}
+
+fragment EntityLoc on LatLon{
+    lat
+    lon
+    addr
+}

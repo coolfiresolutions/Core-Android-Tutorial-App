@@ -1,0 +1,78 @@
+query SensorDetailsQuery($id: UniqueID!){
+    thing(id: $id){
+        ...SensorDetails
+    }
+}
+
+subscription SensorDetailsSubscription($id: UniqueID!){
+    thing(id: $id) {
+        operation
+        entity {
+            ...SensorDetails
+        }
+    }
+}
+
+fragment SensorDetails on Thing{
+    id
+    name
+    locationName
+    description
+    image{
+        ...SensorDetailsAttachment
+    }
+    lastEvent{
+        timestamp
+    }
+    attachments(sortBy: {uploadDate: DESC}){
+        ...SensorDetailsAttachment
+    }
+    loc{
+        ...SensorDetailsLocation
+    }
+    sensorType: thingType{
+        ...SensorDetailsType
+    }
+    attributes
+     audit {
+            modifiedAt
+     }
+}
+
+query SensorEventsQuery($skip: Int!, $sensorId: UniqueID!) {
+    events(limit: 20, skip: $skip, where: {scopes_id: $sensorId}, sortBy: {audit_createdAt: DESC}){
+        ...SensorEvent
+    }
+}
+
+subscription SensorEventsSubscription($sensorId:UniqueID!){
+    event(where:{scopes_id:$sensorId}) {
+        operation
+        entity {
+            ...SensorEvent
+        }
+    }
+}
+
+fragment SensorDetailsAttachment on Attachment{
+    id
+    filename
+    contentType
+    length
+    uploadDate
+    url
+}
+
+fragment SensorDetailsLocation on LatLon{
+    lat
+    lon
+    addr
+}
+
+fragment SensorDetailsType on ThingType{
+    id
+    name
+    iconUrl
+    attributes
+}
+

@@ -1,0 +1,46 @@
+subscription SensorEventSubscription($id: UniqueID!){
+    event(id:$id){
+        operation
+        entity {
+            ...SensorEvent
+        }
+    }
+}
+
+query SensorEventQuery($id: UniqueID!) {
+    event(id: $id) {
+        ...SensorEvent
+    }
+}
+
+fragment SensorEvent on Event{
+    id
+    eventType
+    description
+    attachments {
+        ...SensorDetailsAttachment
+    }
+    timestamp
+    loc {
+        lat
+        lon
+    }
+
+    scopes{
+        entity{
+            ... on Thing {
+                id
+                name
+                image {
+                    ...SensorDetailsAttachment
+                }
+                loc {
+                    addr
+                }
+                sensorType: thingType {
+                    ...SensorDetailsType
+                }
+            }
+        }
+    }
+}

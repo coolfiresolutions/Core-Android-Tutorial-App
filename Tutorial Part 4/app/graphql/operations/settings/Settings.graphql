@@ -1,0 +1,16 @@
+query SettingsQuery($networkId: UniqueID!) {
+    me {
+        firstName
+        lastName
+        userName
+        email
+    }
+    serverInfo {
+        serverVersion
+        hostName
+        APIVersion
+    }
+    network(id:$networkId){
+        name
+    }
+}

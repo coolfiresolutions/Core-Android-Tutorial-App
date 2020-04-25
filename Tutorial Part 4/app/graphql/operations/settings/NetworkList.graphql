@@ -1,0 +1,73 @@
+query NetworksQuery($searchText: Regex!, $cursor: String!) {
+    networksConnection(first: 20, after: $cursor, sortBy: {name: ASC}, where: {
+        name__regex: $searchText
+    }) {
+        edges {
+            cursor
+            node {
+                ...NetworkGql
+            }
+        }
+    }
+    networkCount(where: {
+        name__regex: $searchText
+    })
+}
+
+query MyProfileQuery {
+    profilesConnection(where: { scopeId_type: network, isFavorite: true }) {
+        edges {
+            node {
+                ...MyProfileGql
+            }
+        }
+    }
+}
+
+query FavoriteNetworksQuery($search: [UniqueID!]) {
+    networksConnection(where: {
+        id__in: $search
+    }) {
+        edges {
+            cursor
+            node {
+                ...NetworkGql
+            }
+        }
+    }
+}
+
+mutation FavoriteNetworksMutation($input: UpdateNetworkInput!) {
+    updateNetwork(input: $input) {
+        entity {
+            ...NetworkGql
+        }
+    }
+}
+
+subscription NetworkSubscription {
+    network {
+        operation
+        entity {
+            ...NetworkGql
+        }
+    }
+}
+
+fragment NetworkGql on Network {
+    id
+    name
+    description
+    iconUrl
+    userIds
+    networkProfile: myProfile {
+        ...MyProfileGql
+    }
+}
+
+fragment MyProfileGql on Profile {
+    isFavorite
+    scopeId {
+        id
+    }
+}

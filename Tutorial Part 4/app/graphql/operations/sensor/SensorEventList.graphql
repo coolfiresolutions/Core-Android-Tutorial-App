@@ -1,0 +1,49 @@
+query CursorSensorsActivityQuery($network: UniqueID!, $cursor: String!) {
+    eventsConnection(where: {
+        scopes_id: $network,
+        scopes_type: thing
+    }, first: 20, after: $cursor) {
+        edges {
+            cursor
+            node {
+                ...Event
+            }
+        }
+    }
+}
+
+subscription SensorsActivitySubscription($network:UniqueID!){
+    event(where: {scopes_id: $network, scopes_type: thing}){
+        operation
+        entity{
+            ...Event
+        }
+    }
+}
+
+fragment Event on Event{
+    id
+    attachments {
+        url
+        contentType
+    }
+    eventType
+    timestamp
+    loc {
+        addr
+        lat
+        lon
+    }
+    scopes{
+        entity{
+            ...on Thing {
+                id
+                name
+                thingType {
+                    name
+                    iconUrl
+                }
+            }
+        }
+    }
+}

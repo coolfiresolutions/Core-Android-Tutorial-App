@@ -1,0 +1,66 @@
+query ChatTextsQuery($id: UniqueID!, $cursor: String!) {
+    textsConnection(where: {
+        scope_id: $id
+    }, last: 20, before: $cursor, sortBy: { audit_createdAt: ASC }) {
+        edges {
+            cursor
+            node {
+                ...ChatTextGql
+            }
+        }
+    }
+}
+
+subscription ChatSubscription($id: UniqueID!) {
+    pendingText: text (where: {scope_id: $id}) {
+        operation
+        entity {
+            ...ChatTextGql
+        }
+    }
+}
+
+mutation CreateTextMutation($input:CreateTextInput!) {
+    createText(input: $input) {
+        entity{
+            scope {
+                id
+                type
+            }
+            body
+            attachments {
+                ...ChatAttachmentGql
+            }
+        }
+    }
+}
+
+fragment ChatTextGql on Text {
+    id
+    attachments{
+        ...ChatAttachmentGql
+    }
+    audit{
+        createdAt
+        createdBy{
+            entity {
+                ... on User{
+                    firstName
+                    lastName
+                    userName
+                    email
+                }
+            }
+        }
+    }
+    body
+}
+
+fragment ChatAttachmentGql on Attachment{
+    id
+    filename
+    contentType
+    length
+    uploadDate
+    url
+}

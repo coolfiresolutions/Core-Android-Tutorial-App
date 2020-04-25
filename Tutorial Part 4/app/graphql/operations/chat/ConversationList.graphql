@@ -1,0 +1,91 @@
+query ConversationListQuery($network: UniqueID!, $userScope: UniqueID!, $cursor: String!) {
+    groupsConnection(where: {
+        scopes_id: $network,
+        users: $userScope
+    }, first: 30, after: $cursor, sortBy: {recentActivity: true}) {
+        edges {
+            cursor
+            node {
+                ...Group
+            }
+        }
+    }
+}
+
+subscription ConversationListTextSubscription{
+    text{
+        entity{
+            scope{
+                entity{
+                    ...Group
+                }
+            }
+        }
+    }
+}
+
+subscription ConversationListSubscription($network: UniqueID!){
+    group( where: {scopes_id:$network}){
+        operation
+        entity{
+            ...Group
+        }
+    }
+}
+
+mutation UpdateGroupMutation($input:UpdateGroupInput!) {
+    updateGroup(input: $input) {
+        entity {
+            ...Group
+        }
+    }
+}
+
+mutation CreateGroupMutation($input: CreateGroupInput!){
+    createGroup(input: $input){
+        entity{
+            ...Group
+        }
+    }
+}
+
+fragment ChatListUser on User{
+    id
+    firstName
+    lastName
+    userName
+    email
+    lastPresentDate
+}
+
+fragment Group on Group{
+    id
+    name
+    users
+    usersConnection {
+        edges {
+            node {
+                ...ChatListUser
+            }
+        }
+    }
+    scopes{
+        id
+    }
+    lastMessage{
+        id
+        action
+        actorId{
+            id
+        }
+        sent
+        data
+    }
+    attributes
+    audit {
+        createdAt
+    }
+    myProfile {
+        isHidden
+    }
+}

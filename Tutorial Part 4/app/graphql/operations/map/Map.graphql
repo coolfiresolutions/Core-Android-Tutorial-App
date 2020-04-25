@@ -1,0 +1,100 @@
+# Server says this is how this should be done but HERE doesn't give access to those points
+# and so this is how we've done and verified in the past is passing top-left then top-right
+
+query MapMarkerQuery($network:UniqueID!, $bbox:BBoxInput, $filterOutSessions: String!) {
+    devices(where: {network: $network}, bbox: $bbox){
+        ...MapDevice
+    }
+
+    sessions(where: { network: $network, status__ne: $filterOutSessions}, bbox: $bbox)  {
+        ...MapSession
+    }
+
+    sensors: things(where: {scope_id: $network }, bbox: $bbox)  {
+        ...MapSensor
+    }
+}
+
+query MapGeofenceQuery($network:UniqueID!) {
+    geofences(where: {network: $network}){
+        id
+        name
+        color
+        geoJson
+    }
+}
+
+subscription MapMarkerDeviceSubscription($network:UniqueID!) {
+    device(where: {network: $network}) {
+        operation
+        entity {
+            ...MapDevice
+        }
+    }
+}
+
+subscription MapMarkerSessionSubscription($network:UniqueID!, $filterOutSessions: String!) {
+    session(where: {network: $network, status__ne: $filterOutSessions}) {
+        operation
+        entity {
+            ...MapSession
+        }
+    }
+}
+
+subscription MapMarkerSensorSubscription($network:UniqueID!) {
+    sensor: thing(where: {scope_id: $network}) {
+        operation
+        entity {
+            ...MapSensor
+        }
+    }
+}
+
+fragment MapDevice on Device {
+    id
+    name
+    loc{
+        lat
+        lon
+        building {
+            buildingId
+            floorId
+        }
+    }
+    audit {
+        createdBy{
+            id
+            entity{
+                __typename
+                ...on User{
+                    id
+                    firstName
+                    lastName
+                    email
+                }
+            }
+        }
+        modifiedAt
+    }
+}
+
+fragment MapSession on Session {
+    id
+    name
+    description
+    loc {
+        lat
+        lon
+    }
+}
+
+fragment MapSensor on Thing {
+    id
+    name
+    description
+    loc {
+        lat
+        lon
+    }
+}

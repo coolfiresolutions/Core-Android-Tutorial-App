@@ -1,0 +1,121 @@
+query SessionAttachmentCount($id: UniqueID!){
+    session(id:$id){
+        id
+        textAttachmentsGql : textAttachments{
+            totalCount
+        }
+    }
+}
+
+query SessionsByStatusQuery($network: UniqueID!, $status: String!, $cursor: String!) {
+    sessionCount(where: {status: $status, network: $network})
+    sessionsConnection(where: {
+        status: $status,
+        network: $network
+    }, first: 20, after: $cursor, sortBy: {audit_createdAt: DESC}) {
+        edges {
+            cursor
+            node {
+                ...ListSessionGql
+            }
+        }
+    }
+}
+
+query SessionsByJoined($network: UniqueID!, $id: UniqueID!, $excludedStatus: String!, $cursor: String!) {
+    sessionCount(where: {users: $id, network: $network, status__ne: $excludedStatus})
+    sessionsConnection(where: {
+        users: $id,
+        network: $network,
+        status__ne: $excludedStatus
+    }, first: 20, after: $cursor, sortBy: {audit_createdAt: DESC}) {
+        edges {
+            cursor
+            node {
+                ...ListSessionGql
+            }
+        }
+    }
+}
+
+subscription SessionListSubscription($network: UniqueID!) {
+    session(where: {network: $network}) {
+        operation
+        entity {
+            ...ListSessionGql
+        }
+    }
+}
+
+subscription SessionTextsSubscription($id: UniqueID!) {
+    text (where: {scope_id: $id}) {
+        operation
+        entity {
+            ...SessionTextGql
+        }
+    }
+}
+
+fragment ListSessionGql on Session{
+    id
+    name
+    status
+    sessionTypeGql: sessionType {
+        iconUrl
+        name
+    }
+    audit: audit {
+        createdAt
+        createdBy {
+            id
+        }
+    }
+    usersGql: users{
+        id
+    }
+    startDate
+}
+
+
+fragment SessionTextGql on Text {
+    id
+    attachments{
+        ...SessionAttachmentGql
+    }
+    auditGql: audit{
+        createdAt
+        createdBy{
+            entity {
+                ...on User {
+                    ...UserGql
+                }
+            }
+        }
+    }
+    body
+}
+
+fragment UserGql on User {
+    firstName
+    lastName
+    userName
+    email
+}
+
+fragment SessionAttachmentGql on Attachment{
+    id
+    filename
+    contentType
+    length
+    uploadDate
+    url
+}
+
+fragment LocGql on LatLon {
+    lat
+    lon
+    addr
+    building {
+        buildingName
+    }
+}

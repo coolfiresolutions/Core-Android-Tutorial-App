@@ -1,0 +1,40 @@
+query CursorTextWithAttachmentQuery($scopeId: UniqueID!, $cursor: String!) {
+    textsConnection(where: {
+        scope_id: $scopeId, attachments_id__exists: true}, first: 20, after: $cursor) {
+        edges {
+            cursor
+            node {
+                ...TextWithAttachments
+            }
+        }
+    }
+}
+
+subscription TextWithAttachmentSubscription($scopeId: UniqueID!){
+    text(where: {scope_id: $scopeId, attachments_id__exists: true}){
+        operation
+        entity{
+            ...TextWithAttachments
+        }
+    }
+}
+
+mutation TextUpdateMutation($input:UpdateTextInput!){
+    updateText(input: $input){
+        entity{
+            ...TextWithAttachments
+        }
+    }
+}
+
+fragment TextWithAttachments on Text{
+    id
+    attachments{
+        id
+        filename
+        url
+        length
+        uploadDate
+        contentType
+    }
+}

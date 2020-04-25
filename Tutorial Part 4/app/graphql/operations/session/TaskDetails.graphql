@@ -1,0 +1,29 @@
+query TaskListQuery($sessionId: UniqueID!) {
+    session(id: $sessionId) {
+        ...TaskList
+    }
+}
+
+query TaskDetailsUserQuery($userId: UniqueID!){
+    user(id: $userId){
+        firstName
+        lastName
+        userName
+    }
+}
+
+mutation CreateTextSessionUpdateMutation($input:CreateTextInput!) {
+    createText(input: $input){
+        entity{
+            id
+        }
+    }
+}
+
+mutation UpdateSessionTasksMutation($input:UpdateSessionInput!){
+    updateSession(input: $input){
+        entity {
+            ...TaskList
+        }
+    }
+}

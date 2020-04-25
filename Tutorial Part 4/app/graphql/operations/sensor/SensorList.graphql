@@ -1,0 +1,52 @@
+query CursorSensorsQuery($network: UniqueID!, $cursor: String!) {
+    sensorCount: thingCount(where: {
+        scope_id: $network }
+    )
+    sensors: thingsConnection(where: {
+        scope_id: $network
+    }, first: 20, after: $cursor, sortBy: {audit_createdAt: DESC}) {
+        edges {
+            cursor
+            node {
+                ...Sensor
+            }
+        }
+    }
+}
+
+subscription SensorsSubscription($network:UniqueID!) {
+    sensor: thing(where: {scope_id: $network}) {
+        operation
+        entity {
+            ...Sensor
+        }
+    }
+}
+
+fragment Sensor on Thing {
+    id
+    name
+    locationName
+    loc{
+        addr
+        lat
+        lon
+    }
+    description
+    image {
+        url
+    }
+    lastEvent{
+        timestamp
+    }
+    sensorType: thingType{
+        name
+        iconUrl
+        attributes
+    }
+    audit {
+        createdAt
+        modifiedAt
+    }
+    attributes
+}

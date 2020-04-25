@@ -1,0 +1,47 @@
+query MyUser {
+    me {
+        firstName
+        lastName
+    }
+}
+subscription UserRosterSubscription($network:UniqueID!) {
+    joinScope(id: $network, type: network) {
+        event
+        roster {
+            users {
+                totalCount
+            }
+        }
+    }
+}
+subscription CoreAppSessionSubscription($network:UniqueID!){
+    session(where: {network: $network}){
+        operation
+        entity{
+            id
+        }
+    }
+}
+subscription CoreAppSensorSubscription($network:UniqueID!){
+    sensor:thing(where: {scope_id: $network}){
+        operation
+        entity{
+            id
+        }
+    }
+}
+subscription CoreAppTextSubscription{
+    text{
+        operation
+        entity{
+            scope{
+                entity{
+                    ...on Group{
+                        id
+                        users
+                    }
+                }
+            }
+        }
+    }
+}

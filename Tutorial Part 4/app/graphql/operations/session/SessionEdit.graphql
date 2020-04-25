@@ -1,0 +1,88 @@
+query SessionTypesQuery{
+    sessionTypes{
+        id
+        name
+        severity
+        iconUrl
+    }
+}
+
+query SessionTypeQuery($sessionId: UniqueID!){
+    sessionType(id: $sessionId){
+        id
+        name
+        severity
+        iconUrl
+    }
+}
+
+mutation CreateSession($input:CreateSessionInput!){
+    createSession(input: $input){
+        entity{
+            ...EditSession
+        }
+    }
+}
+
+mutation EditSessionMutation($input: UpdateSessionInput!){
+    updateSession(input: $input){
+        entity{
+            ...EditSession
+        }
+    }
+}
+
+mutation CreateSessionNote($attributes:JSON!){
+    createNote(input: {
+        name:"SessionNote",
+        description: "SessionNote",
+        type:"SessionNote",
+        attributes:$attributes
+    }){
+        entity{
+            id
+            attributes
+        }
+    }
+}
+
+query ExistingSessionQuery($sessionId: UniqueID!){
+    session(id:$sessionId){
+        ...EditSession
+    }
+}
+
+fragment EditSession on Session{
+    id
+    name
+    description
+    status
+    attributes
+    network
+    loc {
+        lat
+        lon
+        addr
+        building {
+            buildingName
+        }
+    }
+    sessionType {
+        iconUrl
+    }
+    audit {
+        createdAt
+    }
+    references{
+        id
+        refType
+        entity{
+            ... on Note{
+                id
+                type
+                attributes
+            }
+        }
+    }
+    startDate
+}
